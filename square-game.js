@@ -12,9 +12,9 @@ class Game {
         this.canvas = document.querySelector('#canvas')
         this.screen = canvas.getContext('2d')
         this.makeBoard(10, 'black', 200, 'whitesmoke')
-        this.bodies = []
+        this.bodies = {}
         let tick = () => {
-            this.update()
+            // this.update()
             requestAnimationFrame(tick)
         }
         tick()
@@ -36,16 +36,16 @@ class Game {
         this.screen.stroke(wall)
     }
 
-    addBody = function (body) {
-        this.bodies.push(body)
+    // addBody = function (body) {
+    //     this.bodies.push(body)
 
-    }
+    // }
 
-    update() {
-        for (let body of this.bodies) {
-            body.update()
-        }
-    }
+    // update() {
+    //     for (let body of this.bodies) {
+    //         body.update()
+    //     }
+    // }
 
 }
 
@@ -63,7 +63,7 @@ class Body {
         this.gridOffset = { x: 227, y: 227 } // Position to place the player at (0,0) in the grid
         this.grid = new Grid()
 
-        this.game.addBody(this)
+        this.game.bodies.player = this
     }
 
     get end() {
@@ -156,15 +156,23 @@ class Rock extends Body {
 class Coin extends Body {
     constructor(game, size) {
         super(game, size, 'rgb(230, 230, 3)')
-        this.gridOffset = { x: this.game.canvas.width/2, y: this.game.canvas.height/2 } // Center of canvas
+        this.gridOffset = { x: this.game.canvas.width / 2, y: this.game.canvas.height / 2 } // Center of canvas
 
-        this.grid.pos = new Vec2d([randInt(-1,1),randInt(-1,1)])
+        this.grid.pos = this.startCoor()
         this.newPosition() // move to center and then draw upon instantiation
         this.draw()
     }
 
+    startCoor() {
+        let vec = new Vec2d([randInt(-1, 1), randInt(-1, 1)])
+        while (vec.isEqual(this.game.bodies.player.grid.pos)) {
+            vec = new Vec2d([randInt(-1, 1), randInt(-1, 1)])
+        }
+        return vec
+    }
+
     newPosition() {
-        let shift = (this.game.wallLen-6*this.game.padding)/3 + this.game.padding
+        let shift = (this.game.wallLen - 6 * this.game.padding) / 3 + this.game.padding
         console.log(shift)
         let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x, y: this.grid.pos.y * shift + this.gridOffset.y }
         this.position = newPos
