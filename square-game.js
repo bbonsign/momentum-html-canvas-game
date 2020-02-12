@@ -3,6 +3,12 @@ class Game {
         this.canvas = document.querySelector('#canvas')
         this.screen = canvas.getContext('2d')
         this.makeBoard(10, 'black', 200, 'whitesmoke')
+        this.bodies = []
+        let tick = () => {
+            this.update()
+            requestAnimationFrame(tick)
+        }
+        tick()
     }
 
     makeBoard = function (cellPadding, groundColor, wallLen, wallColor) {
@@ -20,6 +26,18 @@ class Game {
         wall.rect(150, 150, wallLen, wallLen)
         this.screen.stroke(wall)
     }
+
+    addBody = function (body) {
+        this.bodies.push(body)
+
+    }
+
+    update() {
+        for (let body of this.bodies) {
+            body.update()
+        }
+    }
+
 }
 
 Game.highScore = 0
@@ -32,30 +50,34 @@ class Body {
         this.screen = game.screen
         this.size = size
         this.color = color
-        this.pos = { x: 0, y: 0 } // the upper left corner position
+        this.position = { x: 0, y: 0 } // the upper left corner position
+        this.game.addBody(this)
     }
 
     get end() {
         // the bottom right corner
-        return { x: this.pos.x + this.size, y: this.pos.y + this.size }
+        return { x: this.position.x + this.size, y: this.position.y + this.size }
     }
 
-    moveTo = function (x, y) {
-        this.pos = { x, y }
+    moveTo(x, y) {
+        this.position = { x, y }
     }
 
-    moveBy = function (xshift, yshift) {
-        this.pos.x += xshift
-        this.pos.y += yshift
+    moveBy(xshift, yshift) {
+        this.position.x += xshift
+        this.position.y += yshift
     }
 
-    draw = function () {
+    draw() {
         this.screen.fillStyle = this.color
-        this.screen.fillRect(this.pos.x, this.pos.y, this.size, this.size)
+        this.screen.fillRect(this.position.x, this.position.y, this.size, this.size)
     }
 
-    clear = function () {
-        this.screen.clearRect(this.pos.x, this.pos.y, this.size, this.size)
+    clear() {
+        this.screen.clearRect(this.position.x, this.position.y, this.size, this.size)
+    }
+
+    update() {
     }
 }
 
@@ -63,32 +85,50 @@ class Body {
 class Player extends Body {
     constructor(game, size, color, grid) {
         super(game, size, color)
-        this.keyboarder = new Keyboarder()
-        this.pos = { x: 227, y: 227 } // start in center of board
-        this.grid = new Grid()
+        // this.keyboarder = new Keyboarder()
+        this.gridOffset = { x: 227, y: 227 } // Position to place the player at (0,0) in the grid
+        this.grid = new Grid() // keeps track of players grid coordinate.  Starts at (0,0)
+        // this.pos = { x: this.grid.pos.x * this.shift + this.gridOffset.x, y: this.grid.pos.y * this.shift + this.gridOffset.y } // start in center of board
+        this.newPosition()
+        this.draw()
+
+        window.addEventListener('keydown',(e)=>this.move(e))
     }
 
-    jump = function (dir) {
-        this.clear()
+    newPosition() {
         let shift = this.size + this.game.padding
-        switch (dir) {
-            case 'left':
-                this.moveBy(-shift, 0)
-                break
-            case 'right':
-                this.moveBy(shift, 0)
-                break
-            case 'up':
-                this.moveBy(0, -shift)
-                break
-            case 'down':
-                this.moveBy(0, shift)
-                break
-            default:
-                break;
-        }
-        this.draw()
+        let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x, y: this.grid.pos.y * shift + this.gridOffset.y }
+        this.position = newPos
+        // return newPos
     }
+
+    move(e) {
+        if (event.key == 'ArrowLeft') {
+            this.clear()
+            this.grid.jump('l')
+            this.newPosition()
+            this.draw()
+        }
+        if (event.key == 'ArrowRight') {
+            this.clear()
+            this.grid.jump('r')
+            this.newPosition()
+            this.draw()
+        }
+        if (event.key == 'ArrowUp') {
+            this.clear()
+            this.grid.jump('u')
+            this.newPosition()
+            this.draw()
+        }
+        if (event.key == 'ArrowDown') {
+            this.clear()
+            this.grid.jump('d')
+            this.newPosition()
+            this.draw()
+        }
+    }
+
 }
 
 // =============== Rock ====================================
@@ -109,7 +149,7 @@ class Coin extends Body {
         this.screen.fillStyle = this.color
         // this.screen.moveTo(this.pos, this.pos.y)
         this.screen.beginPath()
-        this.screen.arc(this.pos.x, this.pos.y, this.size, 0, 2 * Math.PI, true)
+        this.screen.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI, true)
         // this.screen.closePath()
         this.screen.fill()
     }
@@ -118,11 +158,11 @@ class Coin extends Body {
 
 // ================ Grid ============================
 // class for a 9x9 grid to keep track of coins and player
-// (0,0) is the top-left position, positive numbers mean right and down, like on the canvas element
-// e.g. (2,2) is bottom-right corner and (1,1) is the middle
+// (0,0) is the middle position, positive numbers mean right and down, like on the canvas element
+// e.g. (1,1) is bottom-right corner and (-1,-1) is the top-left
 class Grid {
     constructor() {
-        this.pos = new Vec2d([1, 1])
+        this.pos = new Vec2d([0, 0])
         this.r = new Vec2d([1, 0])
         this.l = new Vec2d([-1, 0])
         this.d = new Vec2d([0, 1])
@@ -131,7 +171,21 @@ class Grid {
 
     // dir should be 'r', 'l', 'u', or 'd'
     jump = function (dir) {
-        this.pos = this.pos.add(this[dir])
+        if (this.pos.x >= 1 && dir == 'r') {
+            return
+        }
+        else if (this.pos.x <= -1 && dir == 'l') {
+            return
+        }
+        else if (this.pos.y >= 1 && dir == 'd') {
+            return
+        }
+        else if (this.pos.y <= -1 && dir == 'u') {
+            return
+        }
+        else {
+            this.pos = this.pos.add(this[dir])
+        }
     }
 }
 
@@ -160,7 +214,7 @@ pos = { x: 55, y: 80 }
 g = new Game()
 b = new Body(g, 20, 'whitesmoke')
 p = new Player(g, 47, 'whitesmoke')
-c = new Coin(g, 15)
+c = new Coin(g, 20)
 c.moveTo(100, 100)
 const l = 'left'
 const r = 'right'
