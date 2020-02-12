@@ -1,7 +1,6 @@
 class Keyboarder {
   constructor() {
-
-    this.KEYS = { LEFT: 37, RIGHT: 39, UP: 38, DOWN: 40, S: 83 }
+    this.keyState = {}
 
     this.isDown = function (keyCode) {
       return this.keyState[keyCode] === true
@@ -16,15 +15,15 @@ class Keyboarder {
     }
 
     window.addEventListener('keydown',  (e) => {
-      Keyboarder.keyState[e.keyCode] = true
+      this.keyState[e.keyCode] = true
     })
 
     window.addEventListener('keyup',  (e) => {
-      Keyboarder.keyState[e.keyCode] = false
+      this.keyState[e.keyCode] = false
     })
   }
 }
 
-Keyboarder.keyState = {}
+Keyboarder.KEYS = { LEFT: 37, RIGHT: 39, UP: 38, DOWN: 40, S: 83 }
 
 
