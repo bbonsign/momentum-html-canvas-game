@@ -108,7 +108,6 @@ class Player extends Body {
 
     newPosition() {
         let shift = this.size + this.game.padding
-        console.log(shift)
         let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x, y: this.grid.pos.y * shift + this.gridOffset.y }
         this.position = newPos
     }
@@ -144,7 +143,33 @@ class Player extends Body {
 
 // =============== Rock ====================================
 class Rock extends Body {
+    constructor(game, size) {
+        super(game, size, 'grey')
 
+        this.grid.pos = new Vec2d([randInt(-1, 1), randInt(-1, 1)])
+        this.newPosition()
+        this.draw()
+    }
+
+    newPosition() {
+        let shift = (this.game.wallLen - 6 * this.game.padding) / 3 + this.game.padding
+        let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x + (47 - this.size) / 2, y: this.grid.pos.y * shift + this.gridOffset.y + (47 - this.size) / 2 }
+        if (this.grid.pos.y < 0) {
+            newPos.y = this.game.padding + this.size
+        }
+        if (this.grid.pos.y > 0) {
+            newPos.y = 500 - this.game.padding - this.size
+        }
+        if (this.grid.pos.x < 0) {
+            newPos.x = this.game.padding + this.size
+        }
+
+        else {
+            newPos.x = 500 - this.game.padding - this.size
+        }
+        this.position = newPos
+        return newPos
+    }
 }
 
 
@@ -173,7 +198,6 @@ class Coin extends Body {
 
     newPosition() {
         let shift = (this.game.wallLen - 6 * this.game.padding) / 3 + this.game.padding
-        console.log(shift)
         let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x, y: this.grid.pos.y * shift + this.gridOffset.y }
         this.position = newPos
         return newPos
@@ -255,7 +279,9 @@ g = new Game()
 b = new Body(g, 20, 'whitesmoke')
 p = new Player(g, 47, 'whitesmoke')
 c = new Coin(g, 20)
-c.moveTo(100, 100)
+rock = new Rock(g, 35)
+
+// c.moveTo(100, 100)
 const l = 'left'
 const r = 'right'
 const u = 'up'
