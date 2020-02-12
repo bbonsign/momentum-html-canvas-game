@@ -9,9 +9,11 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     background-color: rgb(3, 23, 82);
     color: whitesmoke;
+    padding: 1rem;
     font-size: large;
+    line-height: 1.3rem;
 }
 
 #canvas {
-    margin: 1rem 0 ;
+    margin: 1rem 0;
 }
