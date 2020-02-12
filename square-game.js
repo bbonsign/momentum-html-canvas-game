@@ -92,7 +92,7 @@ class Player extends Body {
         this.newPosition()
         this.draw()
 
-        window.addEventListener('keydown',(e)=>this.move(e))
+        window.addEventListener('keydown', (e) => this.move(e))
     }
 
     newPosition() {
@@ -145,7 +145,7 @@ class Coin extends Body {
         super(game, size, 'rgb(230, 230, 3)')
     }
 
-    draw = function () {
+    draw() {
         this.screen.fillStyle = this.color
         // this.screen.moveTo(this.pos, this.pos.y)
         this.screen.beginPath()
@@ -156,7 +156,7 @@ class Coin extends Body {
 
 }
 
-// ================ Grid ============================
+// ========================= Grid ==============================================
 // class for a 9x9 grid to keep track of coins and player
 // (0,0) is the middle position, positive numbers mean right and down, like on the canvas element
 // e.g. (1,1) is bottom-right corner and (-1,-1) is the top-left
@@ -207,6 +207,10 @@ class Vec2d {
     add(vec2) {
         return new Vec2d(this.vec.map((c, i) => c + vec2.vec[i]))
     }
+
+    isEqual(vec2) {
+        return this.x == vec2.x && this.y == vec2.y
+    }
 }
 
 // ============ Samples to Play with =========================
@@ -220,3 +224,8 @@ const l = 'left'
 const r = 'right'
 const u = 'up'
 const d = 'down'
+
+
+v = new Vec2d([1, 2])
+w = new Vec2d([2, 3])
+x = new Vec2d([1, 2])
