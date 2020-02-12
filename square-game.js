@@ -61,11 +61,11 @@ class Body {
 
 // ================== Player =====================================
 class Player extends Body {
-    constructor(game, size, color) {
+    constructor(game, size, color, grid) {
         super(game, size, color)
         this.keyboarder = new Keyboarder()
-        this.pos = {x: 227, y: 227} // start in center of board
-        this.gridPos = {x: 0, y: 0}
+        this.pos = { x: 227, y: 227 } // start in center of board
+        this.grid = new Grid()
     }
 
     jump = function (dir) {
@@ -118,11 +118,40 @@ class Coin extends Body {
 
 // ================ Grid ============================
 // class for a 9x9 grid to keep track of coins and player
-// (0,0) is the middle position, positive numbers mean right and up,
-// e.g. (1,1) is upper-right corner and (-1,-1) is lower-left
+// (0,0) is the top-left position, positive numbers mean right and down, like on the canvas element
+// e.g. (2,2) is bottom-right corner and (1,1) is the middle
 class Grid {
-    constructor(){
+    constructor() {
+        this.pos = new Vec2d([1, 1])
+        this.r = new Vec2d([1, 0])
+        this.l = new Vec2d([-1, 0])
+        this.d = new Vec2d([0, 1])
+        this.u = new Vec2d([0, -1])
+    }
 
+    // dir should be 'r', 'l', 'u', or 'd'
+    jump = function (dir) {
+        this.pos = this.pos.add(this[dir])
+    }
+}
+
+// class for 2d vectors to simplfy some grid computations
+// arr should be a two element array
+class Vec2d {
+    constructor(arr) {
+        this.vec = arr
+    }
+
+    get x() {
+        return this.vec[0]
+    }
+
+    get y() {
+        return this.vec[1]
+    }
+
+    add(vec2) {
+        return new Vec2d(this.vec.map((c, i) => c + vec2.vec[i]))
     }
 }
 
