@@ -1,3 +1,12 @@
+/**
+ * returns random int from min up to max, inclusive
+ */
+function randInt(min, max) {
+    return Math.floor(Math.random() * (max + 1 - min)) + min
+}
+
+// ==================== CLASSES =========================
+
 class Game {
     constructor() {
         this.canvas = document.querySelector('#canvas')
@@ -51,6 +60,9 @@ class Body {
         this.size = size
         this.color = color
         this.position = { x: 0, y: 0 } // the upper left corner position
+        this.gridOffset = { x: 227, y: 227 } // Position to place the player at (0,0) in the grid
+        this.grid = new Grid()
+
         this.game.addBody(this)
     }
 
@@ -83,23 +95,22 @@ class Body {
 
 // ================== Player =====================================
 class Player extends Body {
-    constructor(game, size, color, grid) {
+    constructor(game, size, color) {
         super(game, size, color)
         // this.keyboarder = new Keyboarder()
-        this.gridOffset = { x: 227, y: 227 } // Position to place the player at (0,0) in the grid
-        this.grid = new Grid() // keeps track of players grid coordinate.  Starts at (0,0)
-        // this.pos = { x: this.grid.pos.x * this.shift + this.gridOffset.x, y: this.grid.pos.y * this.shift + this.gridOffset.y } // start in center of board
-        this.newPosition()
-        this.draw()
 
+        // this.grid = new Grid() // keeps track of players grid coordinate.  Starts at (0,0)
+
+        this.newPosition() // move to center and then draw upon instantiation
+        this.draw()
         window.addEventListener('keydown', (e) => this.move(e))
     }
 
     newPosition() {
         let shift = this.size + this.game.padding
+        console.log(shift)
         let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x, y: this.grid.pos.y * shift + this.gridOffset.y }
         this.position = newPos
-        // return newPos
     }
 
     move(e) {
@@ -138,28 +149,43 @@ class Rock extends Body {
 
 
 // =============== Coin ====================================
-// Coin.position is the center of a cirle
-// Coin.size is the radius
+/**
+* Coin.position is the center of a cirle
+* Coin.size is the radius
+*/
 class Coin extends Body {
     constructor(game, size) {
         super(game, size, 'rgb(230, 230, 3)')
+        this.gridOffset = { x: this.game.canvas.width/2, y: this.game.canvas.height/2 } // Center of canvas
+
+        this.grid.pos = new Vec2d([randInt(-1,1),randInt(-1,1)])
+        this.newPosition() // move to center and then draw upon instantiation
+        this.draw()
+    }
+
+    newPosition() {
+        let shift = (this.game.wallLen-6*this.game.padding)/3 + this.game.padding
+        console.log(shift)
+        let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x, y: this.grid.pos.y * shift + this.gridOffset.y }
+        this.position = newPos
+        return newPos
     }
 
     draw() {
         this.screen.fillStyle = this.color
-        // this.screen.moveTo(this.pos, this.pos.y)
         this.screen.beginPath()
         this.screen.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI, true)
-        // this.screen.closePath()
         this.screen.fill()
     }
 
 }
 
 // ========================= Grid ==============================================
-// class for a 9x9 grid to keep track of coins and player
-// (0,0) is the middle position, positive numbers mean right and down, like on the canvas element
-// e.g. (1,1) is bottom-right corner and (-1,-1) is the top-left
+/**
+* class for a 9x9 grid to keep track of coins and player
+* (0,0) is the middle position, positive numbers mean right and down, like on the canvas element
+* e.g. (1,1) is bottom-right corner and (-1,-1) is the top-left
+*/
 class Grid {
     constructor() {
         this.pos = new Vec2d([0, 0])
@@ -212,6 +238,8 @@ class Vec2d {
         return this.x == vec2.x && this.y == vec2.y
     }
 }
+
+
 
 // ============ Samples to Play with =========================
 pos = { x: 55, y: 80 }
