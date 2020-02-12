@@ -7,7 +7,11 @@
 body {
     text-align: center;
     font-family: Arial, Helvetica, sans-serif;
-    background-color: rgb(8, 8, 41);
+    background-color: rgb(3, 23, 82);
     color: whitesmoke;
     font-size: large;
+}
+
+#canvas {
+    margin: 1rem 0 ;
 }
