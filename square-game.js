@@ -30,6 +30,7 @@ class Game {
             }
             else {
                 cancelAnimationFrame(tick)
+                this.endOverlay()
             }
         }
 
@@ -58,13 +59,8 @@ class Game {
         Game.highScore = this.score > Game.highScore ? this.score : Game.highScore
     }
 
-    drawScore() {
-        this.screen.font = '140px serif';
-        this.screen.fillStyle = 'rgba(50,100,200,.6)'
-        this.screen.fillText(`${this.score}`, 218, 297);
-    }
-
     drawHighScore() {
+        this.screen.textAlign = 'start' // default
         this.screen.font = '35px serif';
         this.screen.fillStyle = 'rgba(255,255,255,.3)'
         this.screen.fillText(`High Score: ${Game.highScore}`, 155, 50);
@@ -109,44 +105,55 @@ class Game {
     }
 
     endBehavior() {
-        let keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
-        let listner = (event) => {
-            if (keys.includes(event.key)) {
-                document.body.removeEventListener('keydown', listner)
+        let callBack = (event) => {
+            if (event.key === 'Enter') {
+                document.body.removeEventListener('keydown', callBack)
                 new Game()
             }
         }
-
-        document.body.addEventListener('keydown', listner)
+        this.endOverlay()
+        document.body.addEventListener('keydown', callBack)
     }
 
-update() {
-    if (this.player.grid.pos.isEqual(this.coin.grid.pos)) {
-        this.score += 1
-        this.coin = new Coin(this, 20)
+    endOverlay() {
+        this.player.move = ()=>{} // prevents the player from drawing over the overlay if arrow keys are pressed
+        this.screen.fillStyle = 'rgba(61, 58, 152, 0.7)'
+        this.screen.fillRect(0, 0, 500, 500)
+        this.screen.fillStyle = 'rgba(255,255,255,1)'
+        this.screen.font = '3rem serif'
+        this.screen.textAlign = 'center'
+        let textStart = 250
+        this.screen.fillText(`You Scored: ${this.score}.`, textStart, 150);
+        this.screen.fillText('Press enter to', textStart, 260);
+        this.screen.fillText('begin a new game', textStart, 320);
     }
-    if (this.rocks.some(rock => this.isHitBy(rock))) {
-        this.stop = true
-        this.endBehavior()
+
+    update() {
+        if (this.player.grid.pos.isEqual(this.coin.grid.pos)) {
+            this.score += 1
+            this.coin = new Coin(this, 20)
+        }
+        if (this.rocks.some(rock => this.isHitBy(rock))) {
+            this.stop = true
+            this.endBehavior()
+        }
+        this.updateHighScore()
+        this.discardRocks()
+        this.screen.clearRect(0, 0, 500, 500)
+        this.makeBoard(10, 'black', 200, 'whitesmoke')
+        this.coin.draw()
+        if (this.rocks.length < this.rockLimit && Math.random() > 0.995) {
+            this.rocks.push(new Rock(this, 35))
+        }
+        else if (this.rocks.length < 2 && Math.random() > 0.9) {
+            this.rocks.push(new Rock(this, 35))
+        }
+        for (let rock of this.rocks) {
+            rock.update()
+        }
+        this.player.draw()
+        this.increaseRockLimit()
     }
-    this.updateHighScore()
-    this.discardRocks()
-    this.screen.clearRect(0, 0, 500, 500)
-    this.makeBoard(10, 'black', 200, 'whitesmoke')
-    // this.drawScore()
-    this.coin.draw()
-    if (this.rocks.length < this.rockLimit && Math.random() > 0.995) {
-        this.rocks.push(new Rock(this, 35))
-    }
-    else if (this.rocks.length < 2 && Math.random() > 0.9) {
-        this.rocks.push(new Rock(this, 35))
-    }
-    for (let rock of this.rocks) {
-        rock.update()
-    }
-    this.player.draw()
-    this.increaseRockLimit()
-}
 }
 
 Game.highScore = 0
