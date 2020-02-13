@@ -115,7 +115,7 @@ class Game {
     }
 
     endOverlay() {
-        this.player.move = ()=>{} // prevents the player from drawing over the overlay if arrow keys are pressed
+        this.player.move = () => { } // prevents the player from drawing over the overlay if arrow keys are pressed
         this.screen.fillStyle = 'rgba(61, 58, 152, 0.7)'
         this.screen.fillRect(0, 0, 500, 500)
         this.screen.fillStyle = 'rgba(255,255,255,1)'
@@ -323,6 +323,20 @@ class Coin extends Body {
         this.screen.beginPath()
         this.screen.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI, true)
         this.screen.fill()
+
+        this.screen.strokeStyle = 'rgb(146, 146, 0)'
+        let old = this.screen.lineWidth
+        this.screen.lineWidth = 4
+        this.screen.beginPath()
+        this.screen.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI, true)
+        this.screen.stroke()
+        this.screen.lineWidth = old
+
+        this.screen.textAlign = 'center'
+        this.screen.font = '25px serif';
+        this.screen.fillStyle = 'rgb(146, 146, 0)'
+        this.screen.fillText(`$`, this.position.x, this.position.y + 8)
+        this.screen.textAlign = 'start' // default
     }
 
 }
