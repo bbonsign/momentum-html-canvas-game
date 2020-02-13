@@ -1,4 +1,4 @@
-/**Vec
+/**
  * returns random int from min up to max, inclusive
  */
 function randInt(min, max) {
@@ -6,7 +6,6 @@ function randInt(min, max) {
 }
 
 // ==================== CLASSES =========================
-// TODO: Rock+Player collision detector
 // TODO: refactor to make Board class separate from Game class
 
 class Game {
@@ -169,8 +168,6 @@ class Body {
         this.position = { x: 0, y: 0 } // the upper left corner position
         this.gridOffset = { x: 227, y: 227 } // Position to place the player at (0,0) in the grid
         this.grid = new Grid()
-
-        // this.game.bodies.player = this
     }
 
     get end() {
@@ -210,10 +207,6 @@ class Body {
 class Player extends Body {
     constructor(game, size, color) {
         super(game, size, color)
-        // this.keyboarder = new Keyboarder()
-
-        // this.grid = new Grid() // keeps track of players grid coordinate.  Starts at (0,0)
-
         this.newPosition() // move to center and then draw upon instantiation
         this.draw()
         window.addEventListener('keydown', (e) => this.move(e))
@@ -260,10 +253,8 @@ class Rock extends Body {
     constructor(game, size) {
         super(game, size, 'rgb(75, 80, 109)')
         this.vel = 0
-        // this.grid.pos = new Vec([randInt(-1, 1), randInt(-1, 1)])
         this.newPositionAndVel()
         this.draw()
-        // this.game.rocks.push(this)
     }
 
     newPositionAndVel() {
@@ -310,8 +301,6 @@ class Coin extends Body {
         this.grid.pos = this.startCoor()
         this.newPosition() // move to center and then draw upon instantiation
         this.draw()
-
-        // this.game.coin = this
     }
 
     startCoor() {
@@ -407,6 +396,6 @@ class Vec {
 
 
 
-// ============ Samples to Play with =========================
-g = new Game()
+// ============ Start a game =========================
+new Game()
 
