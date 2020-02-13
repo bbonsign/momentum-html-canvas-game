@@ -150,48 +150,30 @@ class Player extends Body {
 class Rock extends Body {
     constructor(game, size) {
         super(game, size, 'grey')
-        this.vec = 0
+        this.vel = 0
         // this.grid.pos = new Vec([randInt(-1, 1), randInt(-1, 1)])
         this.newPositionAndVel()
         this.draw()
     }
 
-    newPositionAndVel() { // key%2 == 0 : add to x , key%2 == 1: add to y
+    newPositionAndVel() {
         let shift = this.game.wallLen / 3 - this.game.padding
         let offset = this.gridOffset.x + (47 - this.size) / 2
-        console.log({offset,shift})
-        // let this.grid.pos.x * shift + this.gridOffset.x + (47 - this.size) / 2//******************* */
-        let wall = { 0: new Vec([0, 0]), 1: new Vec([500-this.size, 0]), 2: new Vec([0, 500-this.size]), 3: new Vec([0, 0]) }
+        console.log({ offset, shift })
+        // key%2 == 0 : add to x , key%2 == 1: add to y (top, right, bottom, left)
+        let wall = { 0: new Vec([0, 0]), 1: new Vec([500 - this.size, 0]), 2: new Vec([0, 500 - this.size]), 3: new Vec([0, 0]) }
         let coor1 = randInt(0, 3)
         let coor2 = randInt(-1, 1)
         if (coor1 % 2 == 0) {
             this.position = wall[coor1].add(new Vec([offset, 0])).add(new Vec([shift, 0]).scale(coor2))
+            this.vel = new Vec([0, (coor1 - 1) % 2]) // ( 0 -> -1 & 2 -> 1)
         }
         else {
             this.position = wall[coor1].add(new Vec([0, offset])).add(new Vec([0, shift]).scale(coor2))
+            this.vel = new Vec([(coor1 - 2) % 2, 0]) // ( 1 -> -1 & 3 -> 1)
         }
-        console.log(this.position.x,this.position.y)
+        console.log(this.position.x, this.position.y)
     }
-
-    // newPosition2() {
-    //     let shift = (this.game.wallLen - 6 * this.game.padding) / 3 + this.game.padding
-    //     let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x + (47 - this.size) / 2, y: this.grid.pos.y * shift + this.gridOffset.y + (47 - this.size) / 2 }
-    //     if (this.grid.pos.y < 0) {
-    //         newPos.y = this.game.padding + this.size
-    //     }
-    //     if (this.grid.pos.y > 0) {
-    //         newPos.y = 500 - this.game.padding - this.size
-    //     }
-    //     if (this.grid.pos.x < 0) {
-    //         newPos.x = this.game.padding + this.size
-    //     }
-
-    //     else {
-    //         newPos.x = 500 - this.game.padding - this.size
-    //     }
-    //     this.position = newPos
-    //     return newPos
-    // }
 }
 
 
