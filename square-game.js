@@ -16,7 +16,7 @@ class Game {
         this.canvas = document.querySelector('#canvas')
         this.screen = canvas.getContext('2d')
         this.makeBoard(10, 'black', 200, 'whitesmoke')
-        this.score = 0
+        this.score = 23
 
         this.player = new Player(this, 47, 'whitesmoke')
         this.coin = new Coin(this, 20)
@@ -44,6 +44,33 @@ class Game {
         this.screen.strokeStyle = wallColor
         wall.rect(150, 150, wallLen, wallLen)
         this.screen.stroke(wall)
+        this.drawScore()
+        this.drawHighScore()
+    }
+
+    drawScore() {
+        this.screen.font = '140px serif';
+        this.screen.fillStyle = 'rgba(50,100,200,.6)'
+        this.screen.fillText(`${this.score}`, 218, 297);
+    }
+
+    drawHighScore() {
+        this.screen.font = '35px serif';
+        this.screen.fillStyle = 'rgba(255,255,255,.3)'
+        this.screen.fillText(`High Score: ${Game.highScore}`, 155, 50);
+    }
+
+    drawScore() {
+        if (this.score < 10) {
+            this.screen.font = '140px serif';
+            this.screen.fillStyle = 'rgba(50,100,200,.6)'
+            this.screen.fillText(`${this.score}`, 218, 297);
+        }
+        else {
+            this.screen.font = '140px serif';
+            this.screen.fillStyle = 'rgba(50,100,200,.5)'
+            this.screen.fillText(`${this.score}`, 185, 297);
+        }
     }
 
     discardRocks() {
@@ -55,14 +82,19 @@ class Game {
     }
 
     update() {
+        if (this.player.grid.pos.isEqual(this.coin.grid.pos)) {
+            this.score += 1
+            this.coin = new Coin(this, 20)
+        }
         this.discardRocks()
         this.screen.clearRect(0, 0, 500, 500)
         this.makeBoard(10, 'black', 200, 'whitesmoke')
+        // this.drawScore()
         this.coin.draw()
         if (this.rocks.length < this.rockLimit && Math.random() > 0.995) {
             this.rocks.push(new Rock(this, 35))
         }
-        else if (this.rocks.length<2 && Math.random() > 0.9){
+        else if (this.rocks.length < 2 && Math.random() > 0.9) {
             this.rocks.push(new Rock(this, 35))
         }
         for (let rock of this.rocks) {
