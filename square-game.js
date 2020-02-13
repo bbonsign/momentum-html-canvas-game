@@ -6,27 +6,33 @@ function randInt(min, max) {
 }
 
 // ==================== CLASSES =========================
-// TODO: make a score increment function that detects when Player lands on a Coin
 // TODO: Rock+Player collision detector
-// TODO: Print score and highscore on screen
 // TODO: refactor to make Board class separate from Game class
 
 class Game {
     constructor() {
         this.canvas = document.querySelector('#canvas')
         this.screen = canvas.getContext('2d')
-        this.makeBoard(10, 'black', 200, 'whitesmoke')
-        this.score = 0
 
+        this.score = 0
+        this.rockLimit = 3
+        this.stop = false
+
+        this.makeBoard(10, 'black', 200, 'whitesmoke')
         this.player = new Player(this, 47, 'whitesmoke')
         this.coin = new Coin(this, 20)
-        this.rockLimit = 3
         this.rocks = [new Rock(this, 35), new Rock(this, 35)]
 
         let tick = () => {
             this.update()
-            requestAnimationFrame(tick)
+            if (!this.stop) {
+                requestAnimationFrame(tick)
+            }
+            else {
+                cancelAnimationFrame(tick)
+            }
         }
+
         tick()
     }
 
@@ -81,6 +87,18 @@ class Game {
         this.rocks = this.rocks.filter(rock => !rock.isOffCanvas())
     }
 
+    isHitBy(rock) {
+        let rPos = rock.position // upper left corner
+        let rSize = rock.size
+        let pPos = this.player.position // upper left corner
+        let pSize = this.player.size
+        return (!(rPos.x + rSize < pPos.x ||
+            rPos.x > pPos.x + pSize ||
+            rPos.y + rSize < pPos.y ||
+            rPos.y > pPos.y + pSize
+        ))
+    }
+
     increaseRockLimit() {
         if (this.score > 25) {
             this.rockLimit = 4
@@ -90,38 +108,45 @@ class Game {
         }
     }
 
-    newGame() {
-        keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
-        document.body.addEventListener('keydown', (event) => {
+    endBehavior() {
+        let keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
+        let listner = (event) => {
             if (keys.includes(event.key)) {
+                document.body.removeEventListener('keydown', listner)
                 new Game()
             }
-        })
+        }
+
+        document.body.addEventListener('keydown', listner)
     }
 
-    update() {
-        if (this.player.grid.pos.isEqual(this.coin.grid.pos)) {
-            this.score += 1
-            this.coin = new Coin(this, 20)
-        }
-        this.updateHighScore()
-        this.discardRocks()
-        this.screen.clearRect(0, 0, 500, 500)
-        this.makeBoard(10, 'black', 200, 'whitesmoke')
-        // this.drawScore()
-        this.coin.draw()
-        if (this.rocks.length < this.rockLimit && Math.random() > 0.995) {
-            this.rocks.push(new Rock(this, 35))
-        }
-        else if (this.rocks.length < 2 && Math.random() > 0.9) {
-            this.rocks.push(new Rock(this, 35))
-        }
-        for (let rock of this.rocks) {
-            rock.update()
-        }
-        this.player.draw()
-        this.increaseRockLimit()
+update() {
+    if (this.player.grid.pos.isEqual(this.coin.grid.pos)) {
+        this.score += 1
+        this.coin = new Coin(this, 20)
     }
+    if (this.rocks.some(rock => this.isHitBy(rock))) {
+        this.stop = true
+        this.endBehavior()
+    }
+    this.updateHighScore()
+    this.discardRocks()
+    this.screen.clearRect(0, 0, 500, 500)
+    this.makeBoard(10, 'black', 200, 'whitesmoke')
+    // this.drawScore()
+    this.coin.draw()
+    if (this.rocks.length < this.rockLimit && Math.random() > 0.995) {
+        this.rocks.push(new Rock(this, 35))
+    }
+    else if (this.rocks.length < 2 && Math.random() > 0.9) {
+        this.rocks.push(new Rock(this, 35))
+    }
+    for (let rock of this.rocks) {
+        rock.update()
+    }
+    this.player.draw()
+    this.increaseRockLimit()
+}
 }
 
 Game.highScore = 0
@@ -377,6 +402,4 @@ class Vec {
 
 // ============ Samples to Play with =========================
 g = new Game()
-// p = new Player(g, 47, 'whitesmoke')
-// c = new Coin(g, 20)
-// rock = new Rock(g, 35)
+
