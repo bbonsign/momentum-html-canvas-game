@@ -11,10 +11,10 @@ body {
     color: whitesmoke;
     padding: 1rem;
     font-size: large;
-    line-height: 1.3rem;
+    line-height: 1.5rem;
 }
 
 #canvas {
-    margin: 1rem 0;
+    margin: 1.5rem 0;
     background-color: black;
 }
