@@ -16,7 +16,7 @@ class Game {
         this.canvas = document.querySelector('#canvas')
         this.screen = canvas.getContext('2d')
         this.makeBoard(10, 'black', 200, 'whitesmoke')
-        this.score = 23
+        this.score = 0
 
         this.player = new Player(this, 47, 'whitesmoke')
         this.coin = new Coin(this, 20)
@@ -46,6 +46,10 @@ class Game {
         this.screen.stroke(wall)
         this.drawScore()
         this.drawHighScore()
+    }
+
+    updateHighScore() {
+        Game.highScore = this.score > Game.highScore ? this.score : Game.highScore
     }
 
     drawScore() {
@@ -78,7 +82,21 @@ class Game {
     }
 
     increaseRockLimit() {
-        this.rockLimit = this.score > 25 ? 4 : 3
+        if (this.score > 25) {
+            this.rockLimit = 4
+        }
+        else if (this.score > 35) {
+            this.rockLimit = 5
+        }
+    }
+
+    newGame() {
+        keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
+        document.body.addEventListener('keydown', (event) => {
+            if (keys.includes(event.key)) {
+                new Game()
+            }
+        })
     }
 
     update() {
@@ -86,6 +104,7 @@ class Game {
             this.score += 1
             this.coin = new Coin(this, 20)
         }
+        this.updateHighScore()
         this.discardRocks()
         this.screen.clearRect(0, 0, 500, 500)
         this.makeBoard(10, 'black', 200, 'whitesmoke')
@@ -231,6 +250,9 @@ class Rock extends Body {
             this.vel = new Vec([(coor1 - 2) % 2, 0]) // ( 1 -> 1 & 3 -> -1)
         }
         let velScale = randInt(2, 3)
+        if (this.game.score > 35) {
+            velScale = Math.random() * 2.8 + 1
+        }
         this.vel = this.vel.scale(velScale)
     }
 
