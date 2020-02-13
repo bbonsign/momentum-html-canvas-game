@@ -62,6 +62,9 @@ class Game {
         if (this.rocks.length < this.rockLimit && Math.random() > 0.995) {
             this.rocks.push(new Rock(this, 35))
         }
+        else if (this.rocks.length<2 && Math.random() > 0.9){
+            this.rocks.push(new Rock(this, 35))
+        }
         for (let rock of this.rocks) {
             rock.update()
         }
