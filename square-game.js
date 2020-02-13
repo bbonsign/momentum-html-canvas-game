@@ -1,4 +1,4 @@
-/**
+/**Vec
  * returns random int from min up to max, inclusive
  */
 function randInt(min, max) {
@@ -146,12 +146,17 @@ class Rock extends Body {
     constructor(game, size) {
         super(game, size, 'grey')
 
-        this.grid.pos = new Vec2d([randInt(-1, 1), randInt(-1, 1)])
+        this.grid.pos = new Vec([randInt(-1, 1), randInt(-1, 1)])
         this.newPosition()
         this.draw()
     }
 
     newPosition() {
+        let starts = { wall: { 0: new Vec[], 1: , 2: , 3: },  }
+        let coor1 = randInt(0, 3)
+    }
+
+    newPosition2() {
         let shift = (this.game.wallLen - 6 * this.game.padding) / 3 + this.game.padding
         let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x + (47 - this.size) / 2, y: this.grid.pos.y * shift + this.gridOffset.y + (47 - this.size) / 2 }
         if (this.grid.pos.y < 0) {
@@ -189,9 +194,9 @@ class Coin extends Body {
     }
 
     startCoor() {
-        let vec = new Vec2d([randInt(-1, 1), randInt(-1, 1)])
+        let vec = new Vec([randInt(-1, 1), randInt(-1, 1)])
         while (vec.isEqual(this.game.bodies.player.grid.pos)) {
-            vec = new Vec2d([randInt(-1, 1), randInt(-1, 1)])
+            vec = new Vec([randInt(-1, 1), randInt(-1, 1)])
         }
         return vec
     }
@@ -220,11 +225,11 @@ class Coin extends Body {
 */
 class Grid {
     constructor() {
-        this.pos = new Vec2d([0, 0])
-        this.r = new Vec2d([1, 0])
-        this.l = new Vec2d([-1, 0])
-        this.d = new Vec2d([0, 1])
-        this.u = new Vec2d([0, -1])
+        this.pos = new Vec([0, 0])
+        this.r = new Vec([1, 0])
+        this.l = new Vec([-1, 0])
+        this.d = new Vec([0, 1])
+        this.u = new Vec([0, -1])
     }
 
     // dir should be 'r', 'l', 'u', or 'd'
@@ -249,7 +254,7 @@ class Grid {
 
 // class for 2d vectors to simplfy some grid computations
 // arr should be a two element array
-class Vec2d {
+class Vec {
     constructor(arr) {
         this.vec = arr
     }
@@ -263,7 +268,7 @@ class Vec2d {
     }
 
     add(vec2) {
-        return new Vec2d(this.vec.map((c, i) => c + vec2.vec[i]))
+        return new Vec(this.vec.map((c, i) => c + vec2.vec[i]))
     }
 
     isEqual(vec2) {
@@ -288,6 +293,6 @@ const u = 'up'
 const d = 'down'
 
 
-v = new Vec2d([1, 2])
-w = new Vec2d([2, 3])
-x = new Vec2d([1, 2])
+v = new Vec([1, 2])
+w = new Vec([2, 3])
+x = new Vec([1, 2])
