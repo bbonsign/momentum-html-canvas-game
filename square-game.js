@@ -6,21 +6,31 @@ function randInt(min, max) {
 }
 
 // ==================== CLASSES =========================
+// TODO: make a score increment function that detects when Player lands on a Coin
+// TODO: Rock+Player collision detector
+// TODO: Print score and highscore on screen
+// TODO: refactor to make Board class separate from Game class
 
 class Game {
     constructor() {
         this.canvas = document.querySelector('#canvas')
         this.screen = canvas.getContext('2d')
         this.makeBoard(10, 'black', 200, 'whitesmoke')
-        this.bodies = {}
+        this.score = 0
+
+        this.player = new Player(this, 47, 'whitesmoke')
+        this.coin = new Coin(this, 20)
+        this.rockLimit = 3
+        this.rocks = [new Rock(this, 35), new Rock(this, 35)]
+
         let tick = () => {
-            // this.update()
+            this.update()
             requestAnimationFrame(tick)
         }
         tick()
     }
 
-    makeBoard = function (cellPadding, groundColor, wallLen, wallColor) {
+    makeBoard(cellPadding, groundColor, wallLen, wallColor) {
         this.padding = cellPadding
         this.groundColor = groundColor
         this.wallLen = wallLen
@@ -36,17 +46,28 @@ class Game {
         this.screen.stroke(wall)
     }
 
-    // addBody = function (body) {
-    //     this.bodies.push(body)
+    discardRocks() {
+        this.rocks = this.rocks.filter(rock => !rock.isOffCanvas())
+    }
 
-    // }
+    increaseRockLimit() {
+        this.rockLimit = this.score > 25 ? 4 : 3
+    }
 
-    // update() {
-    //     for (let body of this.bodies) {
-    //         body.update()
-    //     }
-    // }
-
+    update() {
+        this.discardRocks()
+        this.screen.clearRect(0, 0, 500, 500)
+        this.makeBoard(10, 'black', 200, 'whitesmoke')
+        this.coin.draw()
+        if (this.rocks.length < this.rockLimit && Math.random() > 0.995) {
+            this.rocks.push(new Rock(this, 35))
+        }
+        for (let rock of this.rocks) {
+            rock.update()
+        }
+        this.player.draw()
+        this.increaseRockLimit()
+    }
 }
 
 Game.highScore = 0
@@ -63,7 +84,7 @@ class Body {
         this.gridOffset = { x: 227, y: 227 } // Position to place the player at (0,0) in the grid
         this.grid = new Grid()
 
-        this.game.bodies.player = this
+        // this.game.bodies.player = this
     }
 
     get end() {
@@ -90,11 +111,12 @@ class Body {
         this.screen.fillRect(this.position.x, this.position.y, this.size, this.size)
     }
 
-    clear() {
-        this.screen.clearRect(this.position.x, this.position.y, this.size, this.size)
+    isOffCanvas() {
+        return this.position.x < 0 || this.position.x > 495 || this.position.y < 0 || this.position.y > 495
     }
 
-    update() {
+    clear() {
+        this.screen.clearRect(this.position.x, this.position.y, this.size, this.size)
     }
 }
 
@@ -109,6 +131,8 @@ class Player extends Body {
         this.newPosition() // move to center and then draw upon instantiation
         this.draw()
         window.addEventListener('keydown', (e) => this.move(e))
+
+        this.game.player = this
     }
 
     newPosition() {
@@ -143,36 +167,43 @@ class Player extends Body {
             this.draw()
         }
     }
-
 }
 
 // =============== Rock ====================================
 class Rock extends Body {
     constructor(game, size) {
-        super(game, size, 'grey')
+        super(game, size, 'rgb(75, 80, 109)')
         this.vel = 0
         // this.grid.pos = new Vec([randInt(-1, 1), randInt(-1, 1)])
         this.newPositionAndVel()
         this.draw()
+        // this.game.rocks.push(this)
     }
 
     newPositionAndVel() {
         let shift = this.game.wallLen / 3 - this.game.padding
         let offset = this.gridOffset.x + (47 - this.size) / 2
-        console.log({ offset, shift })
         // key%2 == 0 : add to x , key%2 == 1: add to y (top, right, bottom, left)
         let wall = { 0: new Vec([0, 0]), 1: new Vec([500 - this.size, 0]), 2: new Vec([0, 500 - this.size]), 3: new Vec([0, 0]) }
         let coor1 = randInt(0, 3)
         let coor2 = randInt(-1, 1)
         if (coor1 % 2 == 0) {
-            this.position = wall[coor1].add(new Vec([offset, 0])).add(new Vec([shift, 0]).scale(coor2))
-            this.vel = new Vec([0, (coor1 - 1) % 2]) // ( 0 -> -1 & 2 -> 1)
+            this.position = wall[coor1].add(new Vec([offset, 0])).add(new Vec([shift, 0]).scale(coor2)).toObject()
+            this.vel = new Vec([0, (1 - coor1) % 2]) // ( 0 -> -1 & 2 -> 1)
         }
         else {
-            this.position = wall[coor1].add(new Vec([0, offset])).add(new Vec([0, shift]).scale(coor2))
-            this.vel = new Vec([(coor1 - 2) % 2, 0]) // ( 1 -> -1 & 3 -> 1)
+            this.position = wall[coor1].add(new Vec([0, offset])).add(new Vec([0, shift]).scale(coor2)).toObject()
+            this.vel = new Vec([(coor1 - 2) % 2, 0]) // ( 1 -> 1 & 3 -> -1)
         }
-        console.log(this.position.x, this.position.y)
+        let velScale = randInt(2, 3)
+        this.vel = this.vel.scale(velScale)
+    }
+
+    update() {
+        this.clear()
+        this.position.x += this.vel.x
+        this.position.y += this.vel.y
+        this.draw()
     }
 }
 
@@ -190,11 +221,13 @@ class Coin extends Body {
         this.grid.pos = this.startCoor()
         this.newPosition() // move to center and then draw upon instantiation
         this.draw()
+
+        // this.game.coin = this
     }
 
     startCoor() {
         let vec = new Vec([randInt(-1, 1), randInt(-1, 1)])
-        while (vec.isEqual(this.game.bodies.player.grid.pos)) {
+        while (vec.isEqual(this.game.player.grid.pos)) {
             vec = new Vec([randInt(-1, 1), randInt(-1, 1)])
         }
         return vec
@@ -274,6 +307,10 @@ class Vec {
         return new Vec(this.vec.map((c, i) => c + vec2.vec[i]))
     }
 
+    toObject() {
+        return { 'x': this.x, 'y': this.y }
+    }
+
     isEqual(vec2) {
         return this.x == vec2.x && this.y == vec2.y
     }
@@ -282,20 +319,7 @@ class Vec {
 
 
 // ============ Samples to Play with =========================
-pos = { x: 55, y: 80 }
 g = new Game()
-b = new Body(g, 20, 'whitesmoke')
-p = new Player(g, 47, 'whitesmoke')
-c = new Coin(g, 20)
-rock = new Rock(g, 35)
-
-// c.moveTo(100, 100)
-const l = 'left'
-const r = 'right'
-const u = 'up'
-const d = 'down'
-
-
-v = new Vec([1, 2])
-w = new Vec([2, 3])
-x = new Vec([1, 2])
+// p = new Player(g, 47, 'whitesmoke')
+// c = new Coin(g, 20)
+// rock = new Rock(g, 35)
