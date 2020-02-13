@@ -66,6 +66,7 @@ class Game {
     }
 
     drawScore() {
+        this.screen.textAlign = 'start' // default
         if (this.score < 10) {
             this.screen.font = '140px serif';
             this.screen.fillStyle = 'rgba(50,100,200,.6)'
@@ -122,7 +123,7 @@ class Game {
         this.screen.font = '3rem serif'
         this.screen.textAlign = 'center'
         let textStart = 250
-        this.screen.fillText(`You Scored: ${this.score}.`, textStart, 150);
+        this.screen.fillText(`You Scored: ${this.score}`, textStart, 150);
         this.screen.fillText('Press enter to', textStart, 260);
         this.screen.fillText('begin a new game', textStart, 320);
     }
@@ -325,18 +326,15 @@ class Coin extends Body {
         this.screen.fill()
 
         this.screen.strokeStyle = 'rgb(146, 146, 0)'
-        let old = this.screen.lineWidth
         this.screen.lineWidth = 4
         this.screen.beginPath()
         this.screen.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI, true)
         this.screen.stroke()
-        this.screen.lineWidth = old
 
         this.screen.textAlign = 'center'
         this.screen.font = '25px serif';
         this.screen.fillStyle = 'rgb(146, 146, 0)'
         this.screen.fillText(`$`, this.position.x, this.position.y + 8)
-        this.screen.textAlign = 'start' // default
     }
 
 }
