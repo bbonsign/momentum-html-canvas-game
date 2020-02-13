@@ -71,6 +71,11 @@ class Body {
         return { x: this.position.x + this.size, y: this.position.y + this.size }
     }
 
+    get center() {
+        // only accurate for square bodies (not Coins)
+        return { x: this.position + this.size / 2, y: this.position + this.size / 2 }
+    }
+
     moveTo(x, y) {
         this.position = { x, y }
     }
@@ -145,36 +150,48 @@ class Player extends Body {
 class Rock extends Body {
     constructor(game, size) {
         super(game, size, 'grey')
-
-        this.grid.pos = new Vec([randInt(-1, 1), randInt(-1, 1)])
-        this.newPosition()
+        this.vec = 0
+        // this.grid.pos = new Vec([randInt(-1, 1), randInt(-1, 1)])
+        this.newPositionAndVel()
         this.draw()
     }
 
-    newPosition() {
-        let starts = { wall: { 0: new Vec[], 1: , 2: , 3: },  }
+    newPositionAndVel() { // key%2 == 0 : add to x , key%2 == 1: add to y
+        let shift = this.game.wallLen / 3 - this.game.padding
+        let offset = this.gridOffset.x + (47 - this.size) / 2
+        console.log({offset,shift})
+        // let this.grid.pos.x * shift + this.gridOffset.x + (47 - this.size) / 2//******************* */
+        let wall = { 0: new Vec([0, 0]), 1: new Vec([500-this.size, 0]), 2: new Vec([0, 500-this.size]), 3: new Vec([0, 0]) }
         let coor1 = randInt(0, 3)
-    }
-
-    newPosition2() {
-        let shift = (this.game.wallLen - 6 * this.game.padding) / 3 + this.game.padding
-        let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x + (47 - this.size) / 2, y: this.grid.pos.y * shift + this.gridOffset.y + (47 - this.size) / 2 }
-        if (this.grid.pos.y < 0) {
-            newPos.y = this.game.padding + this.size
+        let coor2 = randInt(-1, 1)
+        if (coor1 % 2 == 0) {
+            this.position = wall[coor1].add(new Vec([offset, 0])).add(new Vec([shift, 0]).scale(coor2))
         }
-        if (this.grid.pos.y > 0) {
-            newPos.y = 500 - this.game.padding - this.size
-        }
-        if (this.grid.pos.x < 0) {
-            newPos.x = this.game.padding + this.size
-        }
-
         else {
-            newPos.x = 500 - this.game.padding - this.size
+            this.position = wall[coor1].add(new Vec([0, offset])).add(new Vec([0, shift]).scale(coor2))
         }
-        this.position = newPos
-        return newPos
+        console.log(this.position.x,this.position.y)
     }
+
+    // newPosition2() {
+    //     let shift = (this.game.wallLen - 6 * this.game.padding) / 3 + this.game.padding
+    //     let newPos = { x: this.grid.pos.x * shift + this.gridOffset.x + (47 - this.size) / 2, y: this.grid.pos.y * shift + this.gridOffset.y + (47 - this.size) / 2 }
+    //     if (this.grid.pos.y < 0) {
+    //         newPos.y = this.game.padding + this.size
+    //     }
+    //     if (this.grid.pos.y > 0) {
+    //         newPos.y = 500 - this.game.padding - this.size
+    //     }
+    //     if (this.grid.pos.x < 0) {
+    //         newPos.x = this.game.padding + this.size
+    //     }
+
+    //     else {
+    //         newPos.x = 500 - this.game.padding - this.size
+    //     }
+    //     this.position = newPos
+    //     return newPos
+    // }
 }
 
 
@@ -265,6 +282,10 @@ class Vec {
 
     get y() {
         return this.vec[1]
+    }
+
+    scale(c) {
+        return new Vec([this.x * c, this.y * c])
     }
 
     add(vec2) {
