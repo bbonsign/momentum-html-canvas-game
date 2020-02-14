@@ -217,29 +217,23 @@ class Player extends Body {
   }
 
   move (event) {
-    if (event.key === 'ArrowLeft') {
+    const place = (d) => {
       this.clear()
-      this.grid.jump('l')
+      this.grid.jump(d)
       this.newPosition()
       this.draw()
+    }
+    if (event.key === 'ArrowLeft') {
+      place('l')
     }
     if (event.key === 'ArrowRight') {
-      this.clear()
-      this.grid.jump('r')
-      this.newPosition()
-      this.draw()
+      place('r')
     }
     if (event.key === 'ArrowUp') {
-      this.clear()
-      this.grid.jump('u')
-      this.newPosition()
-      this.draw()
+      place('u')
     }
     if (event.key === 'ArrowDown') {
-      this.clear()
-      this.grid.jump('d')
-      this.newPosition()
-      this.draw()
+      place('d')
     }
   }
 }
@@ -267,9 +261,11 @@ class Rock extends Body {
       this.position = wall[coor1].add(new Vec([0, offset])).add(new Vec([0, shift]).scale(coor2)).toObject()
       this.vel = new Vec([(coor1 - 2) % 2, 0]) // ( 1 -> 1 & 3 -> -1)
     }
-    let velScale = randInt(2, 3)
+    // TODO: replace
+    // Possibly change the speed scale to depend directly on Game.score.
+    let velScale = Math.random() * 2 + 1
     if (this.game.score > 35) {
-      velScale = Math.random() * 2.8 + 1
+      velScale = Math.random() * 2.9 + 1
     }
     this.vel = this.vel.scale(velScale)
   }
@@ -317,13 +313,13 @@ class Coin extends Body {
     this.screen.beginPath()
     this.screen.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI, true)
     this.screen.fill()
-
+    // Add darker border to the coin
     this.screen.strokeStyle = 'rgb(146, 146, 0)'
     this.screen.lineWidth = 4
     this.screen.beginPath()
     this.screen.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI, true)
     this.screen.stroke()
-
+    // put a dollar sign on the coin
     this.screen.textAlign = 'center'
     this.screen.font = '25px serif'
     this.screen.fillStyle = 'rgb(146, 146, 0)'
@@ -348,7 +344,11 @@ class Grid {
 
   // dir should be 'r', 'l', 'u', or 'd'
   jump (dir) {
-    if (this.pos.x >= 1 && dir === 'r') { } else if (this.pos.x <= -1 && dir === 'l') { } else if (this.pos.y >= 1 && dir === 'd') { } else if (this.pos.y <= -1 && dir === 'u') { } else {
+    if (this.pos.x >= 1 && dir === 'r') { }
+    else if (this.pos.x <= -1 && dir === 'l') { }
+    else if (this.pos.y >= 1 && dir === 'd') { }
+    else if (this.pos.y <= -1 && dir === 'u') { }
+    else {
       this.pos = this.pos.add(this[dir])
     }
   }
