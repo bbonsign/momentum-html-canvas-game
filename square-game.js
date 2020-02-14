@@ -7,7 +7,6 @@ function randInt (min, max) {
 
 // ==================== CLASSES =========================
 // TODO: refactor to make Board class separate from Game class
-
 class Game {
   constructor () {
     this.canvas = document.querySelector('#canvas')
@@ -152,6 +151,7 @@ class Game {
   }
 }
 
+// Will stay constant for all new Games that are run, until page refresh
 Game.highScore = 0
 
 // =========================== Body =====================================
