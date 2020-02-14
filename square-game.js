@@ -305,7 +305,6 @@ class Coin extends Body {
     const shift = (this.game.wallLen - 6 * this.game.padding) / 3 + this.game.padding
     const newPos = { x: this.grid.pos.x * shift + this.gridOffset.x, y: this.grid.pos.y * shift + this.gridOffset.y }
     this.position = newPos
-    return newPos
   }
 
   draw () {
