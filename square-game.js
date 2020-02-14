@@ -28,6 +28,7 @@ class Game {
       } else {
         cancelAnimationFrame(tick)
         this.endOverlay()
+        this.endBehavior()
       }
     }
 
@@ -103,12 +104,11 @@ class Game {
   endBehavior () {
     const callBack = (event) => {
       if (event.key === 'Enter') {
-        document.body.removeEventListener('keydown', callBack)
+        window.removeEventListener('keydown', callBack)
         new Game()
       }
     }
-    this.endOverlay()
-    document.body.addEventListener('keydown', callBack)
+    window.addEventListener('keydown', callBack)
   }
 
   endOverlay () {
@@ -131,13 +131,13 @@ class Game {
     }
     if (this.rocks.some(rock => this.isHitBy(rock))) {
       this.stop = true
-      this.endBehavior()
     }
     this.updateHighScore()
     this.discardRocks()
     this.screen.clearRect(0, 0, 500, 500)
     this.makeBoard(10, 'black', 200, 'whitesmoke')
     this.coin.draw()
+    this.increaseRockLimit()
     if (this.rocks.length < this.rockLimit && Math.random() > 0.995) {
       this.rocks.push(new Rock(this, 35))
     } else if (this.rocks.length < 2 && Math.random() > 0.9) {
@@ -147,7 +147,6 @@ class Game {
       rock.update()
     }
     this.player.draw()
-    this.increaseRockLimit()
   }
 }
 
