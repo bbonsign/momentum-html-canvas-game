@@ -51,6 +51,7 @@ class Game {
     this.screen.stroke(wall)
     this.drawScore()
     this.drawHighScore()
+    window.localStorage.setItem('highScore', Game.highScore)
   }
 
   updateHighScore () {
@@ -61,7 +62,7 @@ class Game {
     this.screen.textAlign = 'start' // default
     this.screen.font = '35px serif'
     this.screen.fillStyle = 'rgba(255,255,255,.3)'
-    this.screen.fillText(`High Score: ${Game.highScore}`, 155, 50)
+    this.screen.fillText(`High Score: ${window.localStorage.getItem('highScore')}`, 155, 50)
   }
 
   drawScore () {
